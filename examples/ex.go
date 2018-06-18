@@ -1,19 +1,17 @@
 package main
 
 func main() {
-	testFn(6)
-	// fmt.Println(testFn(6))
 }
 
 func simplest(x int) int {
 	return x * 2
 }
 
-func testFn(x int) (int, int) {
+func dagFn(x int) int {
 	if x < 0 {
 		x *= -1
 	}
-	return x, 1
+	return x
 }
 
 func fnTwo(x int) int {

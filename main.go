@@ -3,58 +3,39 @@ package main
 import (
 	"fmt"
 
-	"golang.org/x/tools/go/loader"
 	"golang.org/x/tools/go/ssa"
-	"golang.org/x/tools/go/ssa/ssautil"
+
+	"github.com/frrad/goose/lib/setup"
 )
 
 func main() {
-	prog, err := createProgram("examples/ex.go")
+	prog, err := setup.CreateProgram("examples/ex.go")
 	if err != nil {
 		panic(err)
 	}
 
-	fn := getFnByName(prog, "simplest")
+	fn := setup.FnByName(prog, "dagFn")
 	infer(fn)
 }
 
-func createProgram(path string) (*ssa.Program, error) {
-	lconf := &loader.Config{}
-	lconf.CreateFromFilenames("", path)
-
-	lprog, err := lconf.Load()
-	if err != nil {
-		return nil, err
-	}
-
-	prog := ssautil.CreateProgram(lprog, 0)
-	prog.Build()
-	return prog, nil
-}
-
-func getFnByName(prog *ssa.Program, name string) *ssa.Function {
-	fns := ssautil.AllFunctions(prog)
-
-	for fn := range fns {
-		if fn.Name() == name {
-			return fn
-		}
-	}
-	return nil
-}
-
 func infer(fn *ssa.Function) {
-	fmt.Println(fn.Signature)
-	fmt.Println(getRetVals(fn))
-
-	for _, block := range fn.Blocks {
-		fmt.Println("block #", block)
-		fmt.Println("dominees", block.Dominees())
-		for i, instr := range block.Instrs {
-			fmt.Println(i, instr)
-		}
-		fmt.Println("")
+	if isDAG(fn) {
+		inferDAG(fn)
+		return
 	}
+
+	panic("oh no!")
+}
+
+func inferDAG(fn *ssa.Function) {
+	startingBlock := fn.Blocks[0]
+	fmt.Println(startingBlock)
+}
+
+//isDAG checks if the graph for a function is a DAG
+func isDAG(fn *ssa.Function) bool {
+	// todo: implement this function
+	return true
 }
 
 func getRetVals(fn *ssa.Function) ([]ssa.Value, error) {
